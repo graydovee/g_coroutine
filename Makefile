@@ -1,26 +1,34 @@
+BUILD=./build
+LIB=lib
+INCLUDE=./include
 $(shell mkdir -p build/lib)
 
-cocore:
-	nasm -f elf64 src/cocore.asm -o build/cocore.o
+FLAG_INCLUDE=-I${INCLUDE}
+FLAG_LIB=-L${BUILD}/${LIB}
 
-coroutine:
-	gcc -c src/coroutine.c -o build/coroutine.o -I./include
+FLAG=${FLAG_LIB} ${FLAG_INCLUDE}
 
-scheduler:
-	gcc -c src/scheduler.c -o build/scheduler.o -I./include
+${BUILD}/cocore.o: src/cocore.asm
+	nasm -f elf64 $< -o $@
+
+${BUILD}/coroutine.o: src/coroutine.c
+	gcc -c $< -o $@ ${FLAG_INCLUDE}
+
+${BUILD}/scheduler.o: src/scheduler.c
+	gcc -c $< -o $@ ${FLAG_INCLUDE}
+
+${BUILD}/${LIB}/libco.a: ${BUILD}/cocore.o ${BUILD}/coroutine.o ${BUILD}/scheduler.o
+	ar cr $@ $^
+
+lib: ${BUILD}/${LIB}/libco.a
+
+build: ${BUILD}/${LIB}/libco.a
+	gcc main.c -o ${BUILD}/main.exe ${FLAG} -lco
+
+.PHONY: run
+run: build
+	${BUILD}/main.exe
 
 .PHONY: clean
 clean:
 	rm -rf build
-
-.PHONY: lib
-lib: cocore coroutine scheduler
-	ar cr build/lib/libcoroutine.a build/cocore.o build/coroutine.o build/scheduler.o
-
-.PHONY: build
-build: lib
-	gcc main.c -o build/main.exe -Lbuild/lib -lcoroutine -I./include
-
-.PHONY: run
-run: build
-	./build/main.exe
