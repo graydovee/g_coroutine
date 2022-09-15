@@ -1,7 +1,9 @@
 section .text
 
 global co_recovery
+global _co_recovery
 co_recovery:
+_co_recovery:
     ; 1. save this stack
     push rbp
     mov rbp, rsp
@@ -25,7 +27,9 @@ co_recovery:
     ret
 
 global co_save
+global _co_save
 co_save:
+_co_save:
     ; stack: retAddr, register, rbp
     ; 1. save pc, sp
     push rbp
@@ -52,7 +56,9 @@ co_save:
     ret
 
 global co_start
+global _co_start
 co_start:
+_co_start:
     push rbp
     mov rbp, rsp
 

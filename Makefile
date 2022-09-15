@@ -1,7 +1,7 @@
-BUILD=./build
+BUILD=./target
 LIB=lib
 INCLUDE=./include
-$(shell mkdir -p build/lib)
+$(shell mkdir -p ${BUILD}/${LIB})
 
 FLAG_INCLUDE=-I${INCLUDE}
 FLAG_LIB=-L${BUILD}/${LIB}
@@ -12,6 +12,14 @@ FLAG=${FLAG_LIB} ${FLAG_INCLUDE}
 
 MOD?=debug
 
+# only support macos and linux
+ifeq ($(shell uname), Darwin)
+	BIN_TYPE=macho64
+else
+	BIN_TYPE=elf64
+endif
+
+
 ifeq (${MOD}, debug)
 	BUILD_FLAG=${FLAG_OPTIMIZATION} ${FLAG_DEBUG}
 else
@@ -19,7 +27,7 @@ else
 endif
 
 ${BUILD}/cocore.o: src/cocore.asm
-	nasm -f elf64 $< -o $@ ${BUILD_FLAG}
+	nasm -f ${BIN_TYPE} $< -o $@ ${BUILD_FLAG}
 
 ${BUILD}/coroutine.o: src/coroutine.c
 	gcc -c $< -o $@ ${FLAG_INCLUDE} ${BUILD_FLAG}
@@ -49,4 +57,4 @@ dev: rebuild
 
 .PHONY: clean
 clean:
-	rm -rf build
+	rm -rf ${BUILD}
