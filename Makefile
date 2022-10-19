@@ -12,7 +12,7 @@ FLAG=${FLAG_LIB} ${FLAG_INCLUDE}
 
 MOD?=debug
 
-# only support macos and linux
+# todo not support macos now
 ifeq ($(shell uname), Darwin)
 	BIN_TYPE=macho64
 else
